@@ -12,5 +12,11 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    exe.linkLibC();
+
+    exe.addIncludePath(b.path("include"));
+    exe.addObjectFile(b.path("lib/SDL2.dll"));
+    exe.addObjectFile(b.path("lib/bgfx.dll"));
+
     b.installArtifact(exe);
 }
