@@ -12,11 +12,22 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    exe.linkLibC();
+    exe.use_lld = true;
 
+    //exe.linkLibC();
+    exe.linkLibCpp();
     exe.addIncludePath(b.path("include"));
+    exe.linkSystemLibrary("d3d11");
     exe.addObjectFile(b.path("lib/SDL2.dll"));
-    exe.addObjectFile(b.path("lib/bgfx.dll"));
+
+    exe.addLibraryPath(b.path("lib/"));
+    exe.linkSystemLibrary("bxRelease");
+    exe.linkSystemLibrary("bimgRelease");
+    exe.linkSystemLibrary("bgfxRelease");
+
+    exe.linkSystemLibrary("kernel32");
+    exe.linkSystemLibrary("gdi32");
+    exe.linkSystemLibrary("user32");
 
     b.installArtifact(exe);
 }
