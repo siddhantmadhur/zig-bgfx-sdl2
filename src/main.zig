@@ -1,4 +1,5 @@
 const std = @import("std");
+const fs = std.fs;
 
 const sdl = @cImport({
     @cInclude("SDL2/SDL.h");
@@ -10,6 +11,23 @@ const bgfx = @import("bgfx.zig");
 
 const WNDW_WIDTH = 800;
 const WNDW_HEIGHT = 600;
+
+const PosColorVertex = struct {
+    position: [2]f32,
+    color: [4]u8,
+};
+
+const triangle = [3]PosColorVertex{
+    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = .{ 0xFF, 0x00, 0x00, 0xFF } },
+    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = .{ 0x00, 0x00, 0xFF, 0xFF } },
+    PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = .{ 0x00, 0xFF, 0x00, 0xFF } },
+};
+
+const triangleIndices = [3]u16{
+    0,
+    1,
+    2,
+};
 
 pub fn main() !void {
 
@@ -56,7 +74,7 @@ pub fn main() !void {
         .context = null,
         .backBuffer = null,
         .backBufferDS = null,
-        .type = bgfx.NativeWindowHandleType.Default,
+        .type = bgfx.NativeWindowHandleType.Count,
     };
 
     bgfx.setPlatformData(&pd);
@@ -76,7 +94,7 @@ pub fn main() !void {
     init.resolution.reset = bgfx.ResetFlags_Vsync;
     init.platformData = pd;
     init.debug = true;
-    init.type = bgfx.RendererType.Count;
+    init.type = bgfx.RendererType.Direct3D11;
 
     const success = bgfx.init(&init);
     defer bgfx.shutdown();
@@ -84,20 +102,57 @@ pub fn main() !void {
     if (!success) {
         std.debug.panic("Could not start bgfx\n", .{});
     }
-    std.debug.print("Using renderer: {s}", .{bgfx.getRendererName(bgfx.getRendererType())});
+    std.debug.print("Using renderer: {s}\n", .{bgfx.getRendererName(bgfx.getRendererType())});
 
     bgfx.setDebug(bgfx.DebugFlags_Text);
+
+    var frame_number: u64 = 0;
+
+    var color_vertex_layout = std.mem.zeroes(bgfx.VertexLayout);
+
+    color_vertex_layout
+        .begin(bgfx.getRendererType())
+        .add(bgfx.Attrib.Position, 2, bgfx.AttribType.Float, false, false)
+        .add(bgfx.Attrib.Color0, 4, bgfx.AttribType.Uint8, true, false)
+        .end();
+
+    const vbffr = bgfx.createVertexBuffer(bgfx.makeRef(&triangle, @sizeOf(PosColorVertex) * 3), &color_vertex_layout, bgfx.BufferFlags_ComputeRead);
+    const indexBffr = bgfx.createIndexBuffer(bgfx.makeRef(&triangleIndices, @sizeOf(u16) * 3), bgfx.BufferFlags_ComputeRead);
+
+    // VS
+    const vs_file_content = @embedFile("compiled/vs_triangle");
+    const vs_mem = bgfx.copy(vs_file_content, @sizeOf(c_char) * 1000);
+
+    // FS
+
+    const fs_file_content = @embedFile("compiled/fs_triangle");
+    const fs_mem = bgfx.copy(fs_file_content, @sizeOf(c_char) * 1000);
+
+    // read shader
+    const vs_tri = bgfx.createShader(vs_mem);
+    const fs_tri = bgfx.createShader(fs_mem);
+
+    const m_program = bgfx.createProgram(vs_tri, fs_tri, false);
 
     bgfx.setViewClear(0, bgfx.ClearFlags_Color | bgfx.ClearFlags_Depth, 0x443355FF, 1.0, 0);
     bgfx.setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
 
-    var frame_number: u64 = 0;
-
     while (true) {
         var _event: sdl.SDL_Event = undefined;
         while (sdl.SDL_PollEvent(&_event) > 0) {}
+
         bgfx.setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
         bgfx.touch(0);
-        frame_number = bgfx.frame(true);
+
+        bgfx.setState(bgfx.StateFlags_Default, bgfx.StateFlags_WriteR | bgfx.StateFlags_WriteG | bgfx.StateFlags_WriteB | bgfx.StateFlags_WriteA);
+
+        bgfx.setVertexBuffer(0, vbffr, 0, 3);
+        bgfx.setIndexBuffer(indexBffr, 1, 3);
+
+        bgfx.dbgTextClear(0, false);
+
+        bgfx.submit(0, m_program, 1, bgfx.DebugFlags_None);
+
+        frame_number = bgfx.frame(false);
     }
 }
