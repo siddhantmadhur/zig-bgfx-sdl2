@@ -14,13 +14,13 @@ const WNDW_HEIGHT = 600;
 
 const PosColorVertex = struct {
     position: [2]f32,
-    color: [4]u8,
+    color: u32,
 };
 
 const triangle = [3]PosColorVertex{
-    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = .{ 0xFF, 0x00, 0x00, 0xFF } },
-    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = .{ 0x00, 0x00, 0xFF, 0xFF } },
-    PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = .{ 0x00, 0xFF, 0x00, 0xFF } },
+    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
+    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = 0x333399FF },
 };
 
 const triangleIndices = [3]u16{
