@@ -1,5 +1,8 @@
 # BGFX w/ SDL2 in Zig
 
+![image](https://github.com/user-attachments/assets/c258dcdb-ff27-459f-af3f-88a442496023)
+
+
 This is a blank "hello triangle" project that links the static libraries for bgfx and SDL2 and renders a very basic triangle. I found it very difficult to accomplish this because I had very little knowledge about toolchains, libraries, or compiling C libraries, and then using them with Zig. Hopefully, this provides some ease of use. I've furthermore documented the process I used to set it up so I remember the exact steps I took.
 
 #### Libraries used:
