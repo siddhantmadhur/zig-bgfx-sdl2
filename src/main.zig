@@ -1,19 +1,5 @@
 const std = @import("std");
 
-const c = @cImport({
-    @cInclude("stdlib.h");
-});
-
-usingnamespace @cImport({
-    @cInclude("GL/gl.h");
-    @cInclude("windows.h");
-    @cInclude("stdio.h");
-    @cInclude("unistd.h");
-    @cInclude("errno.h");
-    @cInclude("time.h");
-    @cInclude("string.h");
-});
-
 const sdl = @cImport({
     @cInclude("SDL2/SDL.h");
     @cInclude("SDL2/SDL_syswm.h");
@@ -65,11 +51,11 @@ pub fn main() !void {
     }
 
     const pd = bgfx.PlatformData{
-        .ndt = c.NULL,
+        .ndt = null,
         .nwh = wmi.info.win.window,
-        .context = c.NULL,
-        .backBuffer = c.NULL,
-        .backBufferDS = c.NULL,
+        .context = null,
+        .backBuffer = null,
+        .backBufferDS = null,
         .type = bgfx.NativeWindowHandleType.Default,
     };
 
