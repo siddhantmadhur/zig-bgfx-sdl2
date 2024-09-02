@@ -7,7 +7,7 @@ This is a blank "hello triangle" project that links the static libraries for bgf
 
 #### Libraries used:
 - [SDL2](https://www.libsdl.org/): This was very easy to get working as they upload the latest release compiled in a static library on their [github releases](https://github.com/libsdl-org/SDL/releases/latest).
-- [BGFX](https://bkaradzic.github.io/bgfx/overview.html): This was more cumbersome to download and get working as the resources online are very little, and further how to implement it in Zig was even more sparse. 
+- [BGFX](https://bkaradzic.github.io/bgfx/overview.html): This was more cumbersome to download and get working as the resources online are very few, and further implementing it in Zig is even more sparse. 
 
 
 ## How to compile the static library
