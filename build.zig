@@ -31,8 +31,12 @@ pub fn build(b: *std.Build) void {
     exe.linkSystemLibrary("dbghelp");
 
     // TODO: Change to dynamically adding path
-    exe.addLibraryPath(b.path("lib/win"));
-    exe.addObjectFile(b.path("lib/win/SDL2.dll"));
+    exe.addLibraryPath(b.path("lib/win/bgfx/"));
+    exe.addLibraryPath(b.path("lib/win/SDL/"));
+
+    exe.linkSystemLibrary("SDL2");
+    exe.linkSystemLibrary("SDL2main");
+
     exe.linkSystemLibrary("bxRelease");
     exe.linkSystemLibrary("bimgRelease");
     exe.linkSystemLibrary("bgfxRelease");
