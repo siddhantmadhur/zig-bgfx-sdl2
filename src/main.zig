@@ -17,7 +17,7 @@ const PosColorVertex = struct {
     color: u32,
 };
 
-const triangle = [3]PosColorVertex{
+var triangle = [3]PosColorVertex{
     PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
     PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x993333FF },
     PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = 0x333399FF },
@@ -50,7 +50,7 @@ pub fn main() !void {
         sdl.SDL_WINDOWPOS_UNDEFINED,
         WNDW_WIDTH,
         WNDW_HEIGHT,
-        0,
+        sdl.SDL_WINDOW_RESIZABLE,
     ).?;
 
     defer sdl.SDL_DestroyWindow(window);
@@ -91,7 +91,7 @@ pub fn main() !void {
     init.resolution.format = bgfx.TextureFormat.RGBA8;
     init.resolution.width = WNDW_WIDTH;
     init.resolution.height = WNDW_HEIGHT;
-    init.resolution.reset = bgfx.ResetFlags_Vsync;
+    init.resolution.reset = bgfx.ResetFlags_None;
     init.platformData = pd;
     init.debug = true;
     init.type = bgfx.RendererType.Direct3D11;
