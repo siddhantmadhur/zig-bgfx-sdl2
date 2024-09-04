@@ -14,8 +14,7 @@ pub fn build(b: *std.Build) void {
     exe.linkLibC();
     exe.linkLibCpp();
     exe.addIncludePath(b.path("include"));
-    exe.linkSystemLibrary("d3d11");
-    exe.linkSystemLibrary("d3d12");
+
     exe.linkSystemLibrary("opengl32");
     exe.linkSystemLibrary("shell32");
     exe.linkSystemLibrary("kernel32");
@@ -30,9 +29,15 @@ pub fn build(b: *std.Build) void {
     exe.linkSystemLibrary("ksuser");
     exe.linkSystemLibrary("dbghelp");
 
-    // TODO: Change to dynamically adding path
-    exe.addLibraryPath(b.path("lib/win/bgfx/"));
-    exe.addLibraryPath(b.path("lib/win/SDL/"));
+    if (target.result.os.tag == .windows) {
+        exe.linkSystemLibrary("d3d11");
+        exe.linkSystemLibrary("d3d12");
+        exe.addLibraryPath(b.path("lib/win/bgfx/"));
+        exe.addLibraryPath(b.path("lib/win/SDL/"));
+    } else {
+        std.debug.print("\nThis project currently only has libraries for Windows. \nTry compiling the libraries for the platform of your choice and change the build file.\n\n", .{});
+        std.process.exit(1);
+    }
 
     exe.linkSystemLibrary("SDL2");
     exe.linkSystemLibrary("SDL2main");
@@ -40,8 +45,6 @@ pub fn build(b: *std.Build) void {
     exe.linkSystemLibrary("bxRelease");
     exe.linkSystemLibrary("bimgRelease");
     exe.linkSystemLibrary("bgfxRelease");
-
-    exe.linkSystemLibrary("mingw32");
 
     //exe.linkSystemLibrary("bxRelease");
     //exe.linkSystemLibrary("bimgRelease");
