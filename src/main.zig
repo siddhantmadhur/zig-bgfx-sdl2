@@ -12,21 +12,41 @@ const bgfx = @import("bgfx.zig");
 const WNDW_WIDTH = 800;
 const WNDW_HEIGHT = 600;
 
+const shapes = enum {
+    triangle,
+    square,
+};
+
+// Change to draw another shape
+const shape_to_draw = shapes.triangle;
+
 const PosColorVertex = struct {
     position: [2]f32,
     color: u32,
 };
 
-var triangle = [3]PosColorVertex{
+var triangle_vertices = [3]PosColorVertex{
     PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
     PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x993333FF },
     PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = 0x333399FF },
 };
 
-const triangleIndices = [3]u16{
+const triangle_indices = [3]u16{
     0,
     1,
     2,
+};
+
+const square_vertices = [4]PosColorVertex{
+    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
+    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x333399FF },
+    PosColorVertex{ .position = .{ -0.5, 0.5 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.5, 0.5 }, .color = 0x993333FF },
+};
+
+const square_indices = [6]u16{
+    0, 1, 2,
+    3, 2, 1,
 };
 
 pub fn main() !void {
@@ -94,7 +114,7 @@ pub fn main() !void {
     init.resolution.reset = bgfx.ResetFlags_None;
     init.platformData = pd;
     init.debug = true;
-    init.type = bgfx.RendererType.Direct3D11;
+    init.type = bgfx.RendererType.Count;
 
     const success = bgfx.init(&init);
     defer bgfx.shutdown();
@@ -116,8 +136,23 @@ pub fn main() !void {
         .add(bgfx.Attrib.Color0, 4, bgfx.AttribType.Uint8, true, false)
         .end();
 
-    const vbffr = bgfx.createVertexBuffer(bgfx.makeRef(&triangle, @sizeOf(PosColorVertex) * 3), &color_vertex_layout, bgfx.BufferFlags_ComputeRead);
-    const indexBffr = bgfx.createIndexBuffer(bgfx.makeRef(&triangleIndices, @sizeOf(u16) * 3), bgfx.BufferFlags_ComputeRead);
+    var vbffr = std.mem.zeroes(bgfx.VertexBufferHandle);
+    var indexBffr = std.mem.zeroes(bgfx.IndexBufferHandle);
+    var num_vertices: u32 = 3;
+    var num_indices: u32 = 3;
+
+    switch (shape_to_draw) {
+        .square => {
+            num_vertices = 4;
+            num_indices = 6;
+            vbffr = bgfx.createVertexBuffer(bgfx.makeRef(&square_vertices, @sizeOf([4]PosColorVertex)), &color_vertex_layout, bgfx.BufferFlags_ComputeRead);
+            indexBffr = bgfx.createIndexBuffer(bgfx.makeRef(&square_indices, @sizeOf([6]u16)), bgfx.BufferFlags_ComputeRead);
+        },
+        .triangle => {
+            vbffr = bgfx.createVertexBuffer(bgfx.makeRef(&triangle_vertices, @sizeOf([3]PosColorVertex)), &color_vertex_layout, bgfx.BufferFlags_ComputeRead);
+            indexBffr = bgfx.createIndexBuffer(bgfx.makeRef(&triangle_indices, @sizeOf([3]u16)), bgfx.BufferFlags_ComputeRead);
+        },
+    }
 
     // VS
     const vs_file_content = @embedFile("compiled/vs_triangle");
@@ -146,8 +181,8 @@ pub fn main() !void {
 
         bgfx.setState(bgfx.StateFlags_Default, bgfx.StateFlags_WriteR | bgfx.StateFlags_WriteG | bgfx.StateFlags_WriteB | bgfx.StateFlags_WriteA);
 
-        bgfx.setVertexBuffer(0, vbffr, 0, 3);
-        bgfx.setIndexBuffer(indexBffr, 1, 3);
+        bgfx.setVertexBuffer(0, vbffr, 0, num_vertices);
+        bgfx.setIndexBuffer(indexBffr, 0, num_indices);
 
         bgfx.dbgTextClear(0, false);
 
