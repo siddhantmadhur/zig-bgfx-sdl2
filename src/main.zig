@@ -161,12 +161,12 @@ pub fn main() !void {
         },
     }
     // VS
-    const vs_file_content = @embedFile("compiled/vs_triangle");
+    const vs_file_content = @embedFile("compiled/vs_basic");
     const vs_mem = bgfx.copy(vs_file_content, @sizeOf(c_char) * 1000);
 
     // FS
 
-    const fs_file_content = @embedFile("compiled/fs_triangle");
+    const fs_file_content = @embedFile("compiled/fs_basic");
     const fs_mem = bgfx.copy(fs_file_content, @sizeOf(c_char) * 1000);
 
     // read shader
