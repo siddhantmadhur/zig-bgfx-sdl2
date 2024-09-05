@@ -21,14 +21,14 @@ const shapes = enum {
 const shape_to_draw = shapes.triangle;
 
 const PosColorVertex = struct {
-    position: [2]f32,
+    position: [3]f32,
     color: u32,
 };
 
 var triangle_vertices = [3]PosColorVertex{
-    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
-    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x993333FF },
-    PosColorVertex{ .position = .{ 0.0, 0.5 }, .color = 0x333399FF },
+    PosColorVertex{ .position = .{ -0.5, -0.5, 0 }, .color = 0x339933FF },
+    PosColorVertex{ .position = .{ 0.5, -0.5, 0 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.0, 0.5, 0 }, .color = 0x333399FF },
 };
 
 const triangle_indices = [3]u16{
@@ -38,10 +38,10 @@ const triangle_indices = [3]u16{
 };
 
 const square_vertices = [4]PosColorVertex{
-    PosColorVertex{ .position = .{ -0.5, -0.5 }, .color = 0x339933FF },
-    PosColorVertex{ .position = .{ 0.5, -0.5 }, .color = 0x333399FF },
-    PosColorVertex{ .position = .{ -0.5, 0.5 }, .color = 0x993333FF },
-    PosColorVertex{ .position = .{ 0.5, 0.5 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ -0.5, -0.5, 0 }, .color = 0x339933FF },
+    PosColorVertex{ .position = .{ 0.5, -0.5, 0 }, .color = 0x333399FF },
+    PosColorVertex{ .position = .{ -0.5, 0.5, 0 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.5, 0.5, 0 }, .color = 0x993333FF },
 };
 
 const square_indices = [6]u16{
@@ -139,7 +139,7 @@ pub fn main() !void {
 
     color_vertex_layout
         .begin(bgfx.getRendererType())
-        .add(bgfx.Attrib.Position, 2, bgfx.AttribType.Float, false, false)
+        .add(bgfx.Attrib.Position, 3, bgfx.AttribType.Float, false, false)
         .add(bgfx.Attrib.Color0, 4, bgfx.AttribType.Uint8, true, false)
         .end();
 
