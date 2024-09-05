@@ -108,7 +108,7 @@ pub fn main() !void {
         },
         .windows => {
             init.type = bgfx.RendererType.Count;
-            //init.platformData.nwh = wmi.info.win.window;
+            init.platformData.nwh = wmi.info.win.window;
             init.platformData.ndt = null;
         },
         else => {
