@@ -15,6 +15,12 @@ pub fn build(b: *std.Build) void {
     exe.linkLibCpp();
     exe.addIncludePath(b.path("include"));
 
+    const platform = b.addOptions();
+    platform.addOption(std.Target.Os.Tag, "os", target.result.os.tag);
+
+    //const platform_module = platform.createModule();
+    exe.root_module.addOptions("platform", platform);
+
     switch (target.result.os.tag) {
         .windows => {
             std.debug.print("Building for windows...\n", .{});
@@ -38,9 +44,16 @@ pub fn build(b: *std.Build) void {
             exe.linkSystemLibrary("SDL2");
         },
         .macos => {
+            exe.addLibraryPath(b.path("lib/macos"));
             exe.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Frameworks" });
             exe.addRPath(.{ .cwd_relative = "/Library/Frameworks" });
             exe.linkFramework("SDL2");
+            exe.linkSystemLibrary("objc");
+            exe.linkFramework("Metal");
+            exe.linkFramework("QuartzCore");
+            exe.linkFramework("Cocoa");
+            exe.linkFramework("IOKit");
+            exe.linkFramework("Carbon");
         },
         else => {
             std.debug.print("\nThis project does not contain static libraries for your operating system.\nManually setup the libraries and link them in the build.zig file and they should work.\n\n", .{});
@@ -48,9 +61,9 @@ pub fn build(b: *std.Build) void {
         },
     }
 
-    //exe.linkSystemLibrary("bxRelease");
-    //exe.linkSystemLibrary("bimgRelease");
-    //exe.linkSystemLibrary("bgfxRelease");
+    exe.linkSystemLibrary("bxRelease");
+    exe.linkSystemLibrary("bimgRelease");
+    exe.linkSystemLibrary("bgfxRelease");
 
     b.installArtifact(exe);
 }

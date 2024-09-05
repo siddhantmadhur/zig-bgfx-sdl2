@@ -75,8 +75,6 @@ pub fn main() !void {
 
     defer sdl.SDL_DestroyWindow(window);
 
-    //var pd = bgfx.PlatformData{};
-
     var wmi = std.mem.zeroes(sdl.SDL_SysWMinfo);
     wmi.version.major = sdl.SDL_MAJOR_VERSION;
     wmi.version.minor = sdl.SDL_MINOR_VERSION;
@@ -88,17 +86,6 @@ pub fn main() !void {
         std.debug.panic("Could not set window wm info\n", .{});
     }
 
-    const pd = bgfx.PlatformData{
-        .ndt = null,
-        .nwh = wmi.info.win.window,
-        .context = null,
-        .backBuffer = null,
-        .backBufferDS = null,
-        .type = bgfx.NativeWindowHandleType.Count,
-    };
-
-    bgfx.setPlatformData(&pd);
-
     var renderers: [8]bgfx.RendererType = undefined;
     const size = bgfx.getSupportedRenderers(8, &renderers);
 
@@ -109,21 +96,41 @@ pub fn main() !void {
 
     var init = std.mem.zeroInit(bgfx.Init, .{});
     init.resolution.format = bgfx.TextureFormat.RGBA8;
+    const platform = @import("platform").os;
+
+    switch (platform) {
+        .macos => {
+            std.debug.print("Running on OSX...\n", .{});
+            init.type = bgfx.RendererType.Count;
+            init.vendorId = bgfx.PciIdFlags_None;
+            init.platformData.nwh = wmi.info.cocoa.window;
+            init.platformData.ndt = null;
+        },
+        .windows => {
+            init.type = bgfx.RendererType.Count;
+            //init.platformData.nwh = wmi.info.win.window;
+            init.platformData.ndt = null;
+        },
+        else => {
+            std.debug.panic("Running on unsupported OS!\n", .{});
+        },
+    }
+
     init.resolution.width = WNDW_WIDTH;
     init.resolution.height = WNDW_HEIGHT;
     init.resolution.reset = bgfx.ResetFlags_None;
-    init.platformData = pd;
-    init.debug = true;
-    init.type = bgfx.RendererType.Count;
+
+    _ = bgfx.renderFrame(0);
 
     const success = bgfx.init(&init);
     defer bgfx.shutdown();
 
     if (!success) {
         std.debug.panic("Could not start bgfx\n", .{});
+    } else {
+        std.debug.print("Initialized bgfx...\n", .{});
     }
     std.debug.print("Using renderer: {s}\n", .{bgfx.getRendererName(bgfx.getRendererType())});
-
     bgfx.setDebug(bgfx.DebugFlags_Text);
 
     var frame_number: u64 = 0;
@@ -153,7 +160,6 @@ pub fn main() !void {
             indexBffr = bgfx.createIndexBuffer(bgfx.makeRef(&triangle_indices, @sizeOf([3]u16)), bgfx.BufferFlags_ComputeRead);
         },
     }
-
     // VS
     const vs_file_content = @embedFile("compiled/vs_triangle");
     const vs_mem = bgfx.copy(vs_file_content, @sizeOf(c_char) * 1000);
@@ -172,9 +178,13 @@ pub fn main() !void {
     bgfx.setViewClear(0, bgfx.ClearFlags_Color | bgfx.ClearFlags_Depth, 0x443355FF, 1.0, 0);
     bgfx.setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
 
-    while (true) {
+    var should_window_close = false;
+
+    while (!should_window_close) {
         var _event: sdl.SDL_Event = undefined;
-        while (sdl.SDL_PollEvent(&_event) > 0) {}
+        while (sdl.SDL_PollEvent(&_event) != 0) {
+            if (_event.type == sdl.SDL_QUIT) should_window_close = true;
+        }
 
         bgfx.setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
         bgfx.touch(0);
@@ -183,8 +193,6 @@ pub fn main() !void {
 
         bgfx.setVertexBuffer(0, vbffr, 0, num_vertices);
         bgfx.setIndexBuffer(indexBffr, 0, num_indices);
-
-        bgfx.dbgTextClear(0, false);
 
         bgfx.submit(0, m_program, 1, bgfx.DebugFlags_None);
 
