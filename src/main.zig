@@ -183,11 +183,15 @@ pub fn main() !void {
     while (!should_window_close) {
         var _event: sdl.SDL_Event = undefined;
         while (sdl.SDL_PollEvent(&_event) != 0) {
-            if (_event.type == sdl.SDL_QUIT) should_window_close = true;
+            switch (_event.type) {
+                sdl.SDL_QUIT => should_window_close = true,
+                sdl.SDL_KEYDOWN => {},
+                else => {},
+            }
         }
 
         bgfx.setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
-        bgfx.touch(0);
+        //bgfx.touch(0);
 
         bgfx.setState(bgfx.StateFlags_Default, bgfx.StateFlags_WriteR | bgfx.StateFlags_WriteG | bgfx.StateFlags_WriteB | bgfx.StateFlags_WriteA);
 
