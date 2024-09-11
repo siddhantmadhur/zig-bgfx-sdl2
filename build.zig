@@ -44,6 +44,7 @@ pub fn build(b: *std.Build) void {
             exe.linkSystemLibrary("SDL2");
         },
         .macos => {
+            std.debug.print("Building for windows...\n", .{});
             exe.addLibraryPath(b.path("lib/macos"));
             exe.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Frameworks" });
             exe.addRPath(.{ .cwd_relative = "/Library/Frameworks" });
