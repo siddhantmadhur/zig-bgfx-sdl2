@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
 
     switch (target.result.os.tag) {
         .windows => {
-            std.debug.print("Building for windows...\n", .{});
+            std.debug.print("Building for Windows...\n", .{});
             exe.linkSystemLibrary("opengl32");
             exe.linkSystemLibrary("shell32");
             exe.linkSystemLibrary("kernel32");
@@ -44,7 +44,7 @@ pub fn build(b: *std.Build) void {
             exe.linkSystemLibrary("SDL2");
         },
         .macos => {
-            std.debug.print("Building for windows...\n", .{});
+            std.debug.print("Building for MacOS...\n", .{});
             exe.addLibraryPath(b.path("lib/macos"));
             exe.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Frameworks" });
             exe.addRPath(.{ .cwd_relative = "/Library/Frameworks" });

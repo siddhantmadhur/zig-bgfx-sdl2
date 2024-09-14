@@ -15,13 +15,14 @@ const WNDW_HEIGHT = 600;
 const shapes = enum {
     triangle,
     square,
+    //hexagon,
 };
 
 // Change to draw another shape
 const shape_to_draw = shapes.triangle;
 
-const PosColorVertex = struct {
-    position: [3]f32,
+const PosColorVertex = packed struct {
+    position: @Vector(3, f32),
     color: u32,
 };
 
@@ -49,13 +50,16 @@ const square_indices = [6]u16{
     3, 2, 1,
 };
 
+const hex_vertices = [6]PosColorVertex{
+    PosColorVertex{ .position = .{ -0.5, -0.5, 0 }, .color = 0x339933FF },
+    PosColorVertex{ .position = .{ 0.5, -0.5, 0 }, .color = 0x333399FF },
+    PosColorVertex{ .position = .{ -0.5, 0.5, 0 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.5, 0.5, 0 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.5, 0.5, 0 }, .color = 0x993333FF },
+    PosColorVertex{ .position = .{ 0.5, 0.5, 0 }, .color = 0x993333FF },
+};
+
 pub fn main() !void {
-
-    // bgfx.bgfx_init();
-    // bgfx.bgfx_reset(800, 600, bgfx.BGFX_RESET_VSYNC);
-
-    // bgfx.bgfx_set_view_clear(0, bgfx.BGFX_CLEAR_COLOR | bgfx.BGFX_CLEAR_DEPTH, 0x303030ff, 1.0, 0);
-
     const status = sdl.SDL_Init(0);
 
     if (status != 0) {
