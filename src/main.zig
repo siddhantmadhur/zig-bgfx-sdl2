@@ -84,9 +84,7 @@ pub fn main() !void {
     wmi.version.minor = sdl.SDL_MINOR_VERSION;
     wmi.version.patch = sdl.SDL_PATCHLEVEL;
 
-    const wmi_status = sdl.SDL_GetWindowWMInfo(window, &wmi);
-    std.debug.print("WMI Status: {d}\n", .{wmi_status});
-    if (wmi_status == sdl.SDL_FALSE) {
+    if (sdl.SDL_GetWindowWMInfo(window, &wmi) == sdl.SDL_FALSE) {
         std.debug.panic("Could not set window wm info\n", .{});
     }
 
@@ -100,9 +98,9 @@ pub fn main() !void {
 
     var init = std.mem.zeroInit(bgfx.Init, .{});
     init.resolution.format = bgfx.TextureFormat.RGBA8;
-    const platform = @import("platform").os;
+    const platform = @import("platform");
 
-    switch (platform) {
+    switch (platform.os) {
         .macos => {
             std.debug.print("Running on OSX...\n", .{});
             init.type = bgfx.RendererType.Count;
@@ -111,6 +109,7 @@ pub fn main() !void {
             init.platformData.ndt = null;
         },
         .windows => {
+            std.debug.print("Running on Windows...\n", .{});
             init.type = bgfx.RendererType.Count;
             init.platformData.nwh = wmi.info.win.window;
             init.platformData.ndt = null;
